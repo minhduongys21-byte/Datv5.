@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP SCANNER PRO - Advanced Network Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #05080d;
+            --card-bg: rgba(12, 20, 31, 0.7);
+            --card-border: rgba(0, 255, 156, 0.2);
+            --neon-green: #00ff9c;
+            --neon-green-glow: rgba(0, 255, 156, 0.3);
+            --text-main: #e2e8f0;
+            --text-muted: #64748b;
+            --danger-red: #ff3366;
+            --font-mono: 'Fira Code', monospace;
+            --font-heading: 'Orbitron', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 156, 0.03) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 156, 0.03) 0%, transparent 20%);
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(8, 14, 23, 0.95);
+            border-right: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .brand-icon {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--neon-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neon-green);
+            font-weight: bold;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--neon-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .brand-text h2 {
+            font-family: var(--font-heading);
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .brand-text h2 span {
+            color: var(--neon-green);
+        }
+
+        .brand-text .version {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--neon-green);
+            background: rgba(0, 255, 156, 0.05);
+            border-color: var(--card-border);
+            box-shadow: 0 0 10px var(--neon-green-glow);
+        }
+
+        .api-selector-panel {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .api-selector-panel label {
+            font-size: 10px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        select {
+            width: 100%;
+            background: #09101a;
+            border: 1px solid var(--card-border);
+            color: var(--neon-green);
+            padding: 8px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            outline: none;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 11px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .dot.active {
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: 8px;
+        }
+
+        .terminal-prompt {
+            color: var(--neon-green);
+            margin-right: 8px;
+        }
+
+        .quick-stats {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-badge {
+            font-size: 12px;
+        }
+
+        .badge-label {
+            color: var(--text-muted);
+        }
+
+        /* Glassmorphism Cards */
+        .glass {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .neon-text {
+            color: var(--neon-green);
+            text-shadow: 0 0 8px var(--neon-green-glow);
+        }
+
+        /* Dashboard Specifics */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .hero-card {
+            grid-column: span 2;
+        }
+
+        .card-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .ip-display {
+            font-family: var(--font-heading);
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .ip-subinfo {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .card-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table th {
+            color: var(--text-muted);
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .data-table td:first-child {
+            color: var(--text-muted);
+            width: 35%;
+        }
+
+        /* Forms & Buttons */
+        .search-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .grid-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-full {
+            grid-column: span 2;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            background: #080e17;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 12px 16px;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green-glow);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn-neon {
+            background: rgba(0, 255, 156, 0.1);
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .btn-neon:hover {
+            background: var(--neon-green);
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .btn-danger {
+            background: rgba(255, 51, 102, 0.1);
+            border-color: var(--danger-red);
+            color: var(--danger-red);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-red);
+            color: #fff;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 10px;
+        }
+
+        /* Sections visibility */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-heading);
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 255, 156, 0.1);
+            border-top: 3px solid var(--neon-green);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .dns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .dns-card h4 {
+            color: var(--neon-green);
+            margin-bottom: 10px;
+            font-family: var(--font-heading);
+        }
+
+        /* Responsive Android / Mobile */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--card-border);
+            }
+
+            .hero-card {
+                grid-column: span 1;
+            }
+
+            .grid-2col, .grid-form {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-full {
+                grid-column: span 1;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <div class="pulse-ring"></div>
+                    <span class="icon-symbol">&lt;/&gt;</span>
+                </div>
+                <div class="brand-text">
+                    <h2>IP SCANNER<span>PRO</span></h2>
+                    <span class="version">v2.5 API-EDITION</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="lookup">
+                    <span class="nav-icon">🔍</span>
+                    <span>IP Lookup</span>
+                </button>
+                <button class="nav-item" data-tab="dns">
+                    <span class="nav-icon">🌐</span>
+                    <span>DNS Analyzer</span>
+                </button>
+                <button class="nav-item" data-tab="asn">
+                    <span class="nav-icon">🏢</span>
+                    <span>ASN & RDAP</span>
+                </button>
+                <button class="nav-item" data-tab="compare">
+                    <span class="nav-icon">⚖️</span>
+                    <span>Compare IPs</span>
+                </button>
+                <button class="nav-item" data-tab="network">
+                    <span class="nav-icon">💻</span>
+                    <span>Client Info</span>
+                </button>
+                <button class="nav-item" data-tab="history">
+                    <span class="nav-icon">📜</span>
+                    <span>History</span>
+                </button>
+            </nav>
+
+            <div class="api-selector-panel">
+                <label for="primary-api">PRIMARY GEOLOCATION API</label>
+                <select id="primary-api">
+                    <option value="ipwho">IPWHO.is (CORS Native / Fast)</option>
+                    <option value="ipapi">IPAPI.co (Comprehensive)</option>
+                    <option value="ip-api">IP-API.com (HTTP Fallback)</option>
+                </select>
+                <div class="status-indicator">
+                    <span class="dot active"></span>
+                    <span id="api-status-text">Engine Ready</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-bar glass">
+                <div class="header-status">
+                    <span class="terminal-prompt">system@scanner-pro:~$</span>
+                    <span id="header-action-text">Initializing engine components...</span>
+                </div>
+                <div class="quick-stats">
+                    <div class="stat-badge">
+                        <span class="badge-label">ONLINE:</span>
+                        <span class="badge-value neon-text" id="status-online">YES</span>
+                    </div>
+                    <div class="stat-badge">
+                        <span class="badge-label">LATENCY:</span>
+                        <span class="badge-value" id="status-latency">-- ms</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD -->
+            <section id="tab-dashboard" class="tab-content active">
+                <div class="section-header">
+                    <h2>NETWORK OVERVIEW DASHBOARD</h2>
+                    <button class="btn btn-neon" id="btn-refresh-dash">
+                        <span class="icon">🔄</span> REFRESH MY DATA
+                    </button>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="glass-card hero-card">
+                        <div class="card-title">YOUR PUBLIC IP ADDRESS</div>
+                        <div class="ip-display neon-text" id="my-public-ip">DETECTING...</div>
+                        <div class="ip-subinfo" id="my-ip-version">Protocol: Searching...</div>
+                    </div>
+
+                    <div class="glass-card">
+                        <div class="card-title">LOCAL / PRIVATE IP</div>
+                        <div class="metric-value" id="my-private-ip">WebRTC Scanning...</div>
+                        <div class="card-desc">Detected via WebSockets / WebRTC RTCDataChannel</div>
+                    </div>
+
+                    <div class="glass-card">
+                        <div class="card-title">LOCATION & REGION</div>
+                        <div class="metric-value" id="my-location">--</div>
+                        <div class="card-desc" id="my-country-code">Country Code: --</div>
+                    </div>
+
+                    <div class="glass-card">
+                        <div class="card-title">ISP & ASN</div>
+                        <div class="metric-value" id="my-isp">--</div>
+                        <div class="card-desc" id="my-asn">ASN: --</div>
+                    </div>
+                </div>
+
+                <div class="glass-card detail-table-card">
+                    <h3>DETAILED MY-NETWORK INTELLIGENCE</h3>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <tbody>
+                                <tr><td>City / Region</td><td id="dash-city">--</td></tr>
+                                <tr><td>Timezone</td><td id="dash-tz">--</td></tr>
+                                <tr><td>Coordinates (Lat, Long)</td><td id="dash-coords">--</td></tr>
+                                <tr><td>Reverse DNS / Hostname</td><td id="dash-rdns">--</td></tr>
+                                <tr><td>Organization / Network</td><td id="dash-org">--</td></tr>
+                                <tr><td>Current API Engine Used</td><td id="dash-api-used" class="neon-text">--</td></tr>
+                                <tr><td>API Response Latency</td><td id="dash-response-time">--</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: IP LOOKUP -->
+            <section id="tab-lookup" class="tab-content">
+                <div class="section-header">
+                    <h2>TARGET IP & DOMAIN ANALYZER</h2>
+                </div>
+
+                <div class="glass-card search-box">
+                    <form id="form-ip-lookup" class="search-form">
+                        <input type="text" id="input-target" placeholder="Enter IPv4, IPv6 or Domain (e.g., 8.8.8.8 or cloudflare.com)" required>
+                        <button type="submit" class="btn btn-neon">ANALYZE TARGET</button>
+                    </form>
+                </div>
+
+                <div id="lookup-loading" class="loading-spinner hidden">
+                    <div class="spinner"></div>
+                    <p>Fetching real-time telemetry from providers...</p>
+                </div>
+
+                <div id="lookup-result" class="glass-card hidden">
+                    <div class="result-header">
+                        <div>
+                            <span class="label">TARGET:</span>
+                            <span class="target-title neon-text" id="res-target-ip">--</span>
+                        </div>
+                        <div class="export-actions">
+                            <button class="btn btn-sm" onclick="exportCurrentReport('json')">Export JSON</button>
+                            <button class="btn btn-sm" onclick="exportCurrentReport('csv')">Export CSV</button>
+                            <button class="btn btn-sm" onclick="exportCurrentReport('txt')">Export TXT</button>
+                        </div>
+                    </div>
+
+                    <div class="grid-2col">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <tbody>
+                                    <tr><td>Target Address</td><td id="res-ip">--</td></tr>
+                                    <tr><td>Country</td><td id="res-country">--</td></tr>
+                                    <tr><td>Country Code</td><td id="res-country-code">--</td></tr>
+                                    <tr><td>Region / State</td><td id="res-region">--</td></tr>
+                                    <tr><td>City</td><td id="res-city">--</td></tr>
+                                    <tr><td>Postal Code</td><td id="res-postal">--</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <tbody>
+                                    <tr><td>Coordinates</td><td id="res-coords">--</td></tr>
+                                    <tr><td>Timezone</td><td id="res-tz">--</td></tr>
+                                    <tr><td>ISP</td><td id="res-isp">--</td></tr>
+                                    <tr><td>Organization</td><td id="res-org">--</td></tr>
+                                    <tr><td>ASN Number</td><td id="res-asn">--</td></tr>
+                                    <tr><td>Reverse DNS</td><td id="res-rdns">--</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: DNS ANALYZER -->
+            <section id="tab-dns" class="tab-content">
+                <div class="section-header">
+                    <h2>GOOGLE PUBLIC DNS QUERY ENGINE</h2>
+                </div>
+
+                <div class="glass-card search-box">
+                    <form id="form-dns" class="search-form">
+                        <input type="text" id="input-dns-domain" placeholder="Enter target domain (e.g., google.com)" required>
+                        <button type="submit" class="btn btn-neon">QUERY DNS RECORDS</button>
+                    </form>
+                </div>
+
+                <div id="dns-loading" class="loading-spinner hidden">
+                    <div class="spinner"></div>
+                    <p>Executing Google Public DNS JSON Queries...</p>
+                </div>
+
+                <div id="dns-results" class="dns-grid hidden">
+                    <!-- Cards for A, AAAA, MX, NS, TXT, CNAME dynamically injected -->
+                </div>
+            </section>
+
+            <!-- TAB 4: ASN & RDAP -->
+            <section id="tab-asn" class="tab-content">
+                <div class="section-header">
+                    <h2>ASN & RDAP WHOIS DEEP LOOKUP</h2>
+                </div>
+
+                <div class="glass-card search-box">
+                    <form id="form-rdap" class="search-form">
+                        <input type="text" id="input-rdap-target" placeholder="Enter IP or ASN (e.g., 1.1.1.1 or AS13335)" required>
+                        <button type="submit" class="btn btn-neon">INSPECT RDAP</button>
+                    </form>
+                </div>
+
+                <div id="rdap-loading" class="loading-spinner hidden">
+                    <div class="spinner"></div>
+                    <p>Fetching Registry Data via RDAP Protocol...</p>
+                </div>
+
+                <div id="rdap-results" class="glass-card hidden">
+                    <h3>REGISTRY DATA DETAILS</h3>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <tbody id="rdap-table-body">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: IP COMPARISON -->
+            <section id="tab-compare" class="tab-content">
+                <div class="section-header">
+                    <h2>DUAL IP COMPARISON TOOL</h2>
+                </div>
+
+                <div class="glass-card search-box">
+                    <form id="form-compare" class="search-form grid-form">
+                        <input type="text" id="input-ip1" placeholder="IP / Domain #1" required>
+                        <input type="text" id="input-ip2" placeholder="IP / Domain #2" required>
+                        <button type="submit" class="btn btn-neon btn-full">COMPARE TARGETS</button>
+                    </form>
+                </div>
+
+                <div id="compare-loading" class="loading-spinner hidden">
+                    <div class="spinner"></div>
+                    <p>Analyzing both targets concurrently...</p>
+                </div>
+
+                <div id="compare-results" class="glass-card hidden">
+                    <div class="table-responsive">
+                        <table class="data-table compare-table">
+                            <thead>
+                                <tr>
+                                    <th>METRIC</th>
+                                    <th id="comp-head-1" class="neon-text">TARGET 1</th>
+                                    <th id="comp-head-2" class="neon-text">TARGET 2</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compare-table-body">
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: CLIENT INFORMATION -->
+            <section id="tab-network" class="tab-content">
+                <div class="section-header">
+                    <h2>BROWSER & SYSTEM TELEMETRY</h2>
+                </div>
+
+                <div class="glass-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <tbody>
+                                <tr><td>Online State</td><td id="sys-online">--</td></tr>
+                                <tr><td>User Agent</td><td id="sys-ua">--</td></tr>
+                                <tr><td>Estimated OS / Platform</td><td id="sys-os">--</td></tr>
+                                <tr><td>Screen Resolution</td><td id="sys-res">--</td></tr>
+                                <tr><td>Viewport Size</td><td id="sys-vp">--</td></tr>
+                                <tr><td>Network Connection Type</td><td id="sys-conn">--</td></tr>
+                                <tr><td>Estimated Downlink Speed</td><td id="sys-downlink">--</td></tr>
+                                <tr><td>Estimated RTT (Latency)</td><td id="sys-rtt">--</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 7: HISTORY -->
+            <section id="tab-history" class="tab-content">
+                <div class="section-header">
+                    <h2>LOOKUP HISTORY</h2>
+                    <button class="btn btn-danger" id="btn-clear-history">CLEAR ALL HISTORY</button>
+                </div>
+
+                <div class="glass-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>TIMESTAMP</th>
+                                    <th>TARGET</th>
+                                    <th>IP ADDRESS</th>
+                                    <th>LOCATION</th>
+                                    <th>ISP</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                <tr><td colspan="6" style="text-align:center;">No search history found.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        /**
+         * IP SCANNER PRO - Core Engine
+         * Handcrafted with vanilla JavaScript for fast performance on Mobile & PC.
+         */
+
+        // Application State
+        const state = {
+            myNetworkData: null,
+            currentLookupData: null,
+            history: JSON.parse(localStorage.getItem('ip_scanner_history') || '[]'),
+            activeApi: 'ipwho'
+        };
+
+        // Endpoints Configuration
+        const API_ENDPOINTS = {
+            ipwho: (target = '') => `https://ipwho.is/${target}`,
+            ipapi: (target = '') => `https://ipapi.co/${target}/json/`,
+            'ip-api': (target = '') => `https://ip-api.com/json/${target}`
+        };
+
+        // DOM Elements Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            initNavigation();
+            initEventListeners();
+            fetchDashboardData();
+            detectLocalPrivateIP();
+            renderClientNetworkInfo();
+            renderHistoryTable();
+        });
+
+        // Navigation Controller
+        function initNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const tabs = document.querySelectorAll('.tab-content');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetTab = item.getAttribute('data-tab');
+                    
+                    navItems.forEach(i => i.classList.remove('active'));
+                    tabs.forEach(t => t.classList.remove('active'));
+
+                    item.classList.add('active');
+                    document.getElementById(`tab-${targetTab}`).classList.add('active');
+                });
+            });
+
+            document.getElementById('primary-api').addEventListener('change', (e) => {
+                state.activeApi = e.target.value;
+                updateStatus(`Engine changed to ${e.target.value.toUpperCase()}`);
+            });
+        }
+
+        // Global Event Handlers
+        function initEventListeners() {
+            document.getElementById('btn-refresh-dash').addEventListener('click', () => {
+                fetchDashboardData();
+            });
+
+            document.getElementById('form-ip-lookup').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = document.getElementById('input-target').value.trim();
+                if (input) performIPLookup(input);
+            });
+
+            document.getElementById('form-dns').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const domain = document.getElementById('input-dns-domain').value.trim();
+                if (domain) performDNSLookup(domain);
+            });
+
+            document.getElementById('form-rdap').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const target = document.getElementById('input-rdap-target').value.trim();
+                if (target) performRDAPLookup(target);
+            });
+
+            document.getElementById('form-compare').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const ip1 = document.getElementById('input-ip1').value.trim();
+                const ip2 = document.getElementById('input-ip2').value.trim();
+                if (ip1 && ip2) performComparison(ip1, ip2);
+            });
+
+            document.getElementById('btn-clear-history').addEventListener('click', () => {
+                state.history = [];
+                localStorage.removeItem('ip_scanner_history');
+                renderHistoryTable();
+            });
+        }
+
+        // Utility: Fetch with Timeout & Metric Tracking
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeoutMs);
+            const startTime = performance.now();
+
+            try {
+                const response = await fetch(url, { ...options, signal: controller.signal });
+                clearTimeout(id);
+                const endTime = performance.now();
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return { data, latency: Math.round(endTime - startTime) };
+            } catch (err) {
+                clearTimeout(id);
+                throw err;
+            }
+        }
+
+        // Standardize API Responses
+        function normalizeData(rawData, apiSource) {
+            if (apiSource === 'ipwho') {
+                if (rawData.success === false) throw new Error(rawData.message || 'Lookup failed');
+                return {
+                    ip: rawData.ip,
+                    country: rawData.country,
+                    country_code: rawData.country_code,
+                    region: rawData.region,
+                    city: rawData.city,
+                    latitude: rawData.latitude,
+                    longitude: rawData.longitude,
+                    timezone: rawData.timezone?.id || '--',
+                    isp: rawData.connection?.isp || '--',
+                    org: rawData.connection?.org || '--',
+                    asn: rawData.connection?.asn ? `AS${rawData.connection.asn}` : '--',
+                    postal: rawData.postal || '--',
+                    rdns: rawData.connection?.domain || '--'
+                };
+            } else if (apiSource === 'ipapi') {
+                if (rawData.error) throw new Error(rawData.reason || 'Lookup failed');
+                return {
+                    ip: rawData.ip,
+                    country: rawData.country_name,
+                    country_code: rawData.country_code,
+                    region: rawData.region,
+                    city: rawData.city,
+                    latitude: rawData.latitude,
+                    longitude: rawData.longitude,
+                    timezone: rawData.timezone,
+                    isp: rawData.org || '--',
+                    org: rawData.org || '--',
+                    asn: rawData.asn || '--',
+                    postal: rawData.postal || '--',
+                    rdns: rawData.version || '--'
+                };
+            } else if (apiSource === 'ip-api') {
+                if (rawData.status === 'fail') throw new Error(rawData.message || 'Lookup failed');
+                return {
+                    ip: rawData.query,
+                    country: rawData.country,
+                    country_code: rawData.countryCode,
+                    region: rawData.regionName,
+                    city: rawData.city,
+                    latitude: rawData.lat,
+                    longitude: rawData.lon,
+                    timezone: rawData.timezone,
+                    isp: rawData.isp || '--',
+                    org: rawData.org || '--',
+                    asn: rawData.as || '--',
+                    postal: rawData.zip || '--',
+                    rdns: '--'
+                };
+            }
+        }
+
+        // 1. DASHBOARD CONTROLLER
+        async function fetchDashboardData() {
+            updateStatus('Scanning local connection parameters...');
+            const selectedApi = state.activeApi;
+
+            try {
+                const { data, latency } = await fetchWithTimeout(API_ENDPOINTS[selectedApi]());
+                const normalized = normalizeData(data, selectedApi);
+                state.myNetworkData = normalized;
+
+                document.getElementById('my-public-ip').innerText = normalized.ip;
+                document.getElementById('my-ip-version').innerText = `Protocol: ${normalized.ip.includes(':') ? 'IPv6' : 'IPv4'}`;
+                document.getElementById('my-location').innerText = `${normalized.city}, ${normalized.country}`;
+                document.getElementById('my-country-code').innerText = `Country Code: ${normalized.country_code}`;
+                document.getElementById('my-isp').innerText = normalized.isp;
+                document.getElementById('my-asn').innerText = normalized.asn;
+
+                document.getElementById('dash-city').innerText = `${normalized.city}, ${normalized.region}`;
+                document.getElementById('dash-tz').innerText = normalized.timezone;
+                document.getElementById('dash-coords').innerText = `${normalized.latitude}, ${normalized.longitude}`;
+                document.getElementById('dash-rdns').innerText = normalized.rdns;
+                document.getElementById('dash-org').innerText = normalized.org;
+                document.getElementById('dash-api-used').innerText = selectedApi.toUpperCase();
+                document.getElementById('dash-response-time').innerText = `${latency} ms`;
+                document.getElementById('status-latency').innerText = `${latency} ms`;
+
+                updateStatus('Dashboard refreshed successfully');
+            } catch (err) {
+                updateStatus(`Primary API (${selectedApi}) failed. Trying fallback...`);
+                fallbackDashboardData();
+            }
+        }
+
+        async function fallbackDashboardData() {
+            const fallbackList = ['ipwho', 'ipapi', 'ip-api'].filter(a => a !== state.activeApi);
+            for (const api of fallbackList) {
+                try {
+                    const { data, latency } = await fetchWithTimeout(API_ENDPOINTS[api]());
+                    const normalized = normalizeData(data, api);
+                    document.getElementById('my-public-ip').innerText = normalized.ip;
+                    document.getElementById('dash-api-used').innerText = `${api.toUpperCase()} (FALLBACK)`;
+                    document.getElementById('status-latency').innerText = `${latency} ms`;
+                    updateStatus(`Recovered using fallback API: ${api}`);
+                    return;
+                } catch (e) {
+                    continue;
+                }
+            }
+            updateStatus('Error: All Geolocation APIs are unreachable.');
+        }
+
+        // WebRTC Local IP Detection
+        function detectLocalPrivateIP() {
+            const localIpEl = document.getElementById('my-private-ip');
+            window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+
+            if (!window.RTCPeerConnection) {
+                localIpEl.innerText = 'Not Supported';
+                return;
+            }
+
+            const pc = new RTCPeerConnection({ iceServers: [] });
+            pc.createDataChannel('');
+
+            pc.onicecandidate = (e) => {
+                if (!e.candidate) return;
+                const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/;
+                const match = ipRegex.exec(e.candidate.candidate);
+                if (match) {
+                    localIpEl.innerText = match[1];
+                    pc.onicecandidate = null;
+                }
+            };
+
+            pc.createOffer().then(offer => pc.setLocalDescription(offer)).catch(() => {
+                localIpEl.innerText = 'Blocked by Browser/mDNS';
+            });
+
+            setTimeout(() => {
+                if (localIpEl.innerText === 'WebRTC Scanning...') {
+                    localIpEl.innerText = 'Hidden (mDNS Protected)';
+                }
+            }, 3000);
+        }
+
+        // 2. IP LOOKUP CONTROLLER
+        async function performIPLookup(target) {
+            const loading = document.getElementById('lookup-loading');
+            const resultBox = document.getElementById('lookup-result');
+            loading.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            try {
+                const selectedApi = state.activeApi;
+                const { data } = await fetchWithTimeout(API_ENDPOINTS[selectedApi](target));
+                const normalized = normalizeData(data, selectedApi);
+                state.currentLookupData = { target, ...normalized, apiSource: selectedApi };
+
+                document.getElementById('res-target-ip').innerText = target;
+                document.getElementById('res-ip').innerText = normalized.ip;
+                document.getElementById('res-country').innerText = normalized.country;
+                document.getElementById('res-country-code').innerText = normalized.country_code;
+                document.getElementById('res-region').innerText = normalized.region;
+                document.getElementById('res-city').innerText = normalized.city;
+                document.getElementById('res-postal').innerText = normalized.postal;
+                document.getElementById('res-coords').innerText = `${normalized.latitude}, ${normalized.longitude}`;
+                document.getElementById('res-tz').innerText = normalized.timezone;
+                document.getElementById('res-isp').innerText = normalized.isp;
+                document.getElementById('res-org').innerText = normalized.org;
+                document.getElementById('res-asn').innerText = normalized.asn;
+                document.getElementById('res-rdns').innerText = normalized.rdns;
+
+                loading.classList.add('hidden');
+                resultBox.classList.remove('hidden');
+
+                saveHistoryItem(target, normalized);
+            } catch (err) {
+                loading.classList.add('hidden');
+                alert(`Failed to fetch information for target '${target}': ${err.message}`);
+            }
+        }
+
+        // 3. DNS ANALYZER CONTROLLER
+        async function performDNSLookup(domain) {
+            const loading = document.getElementById('dns-loading');
+            const container = document.getElementById('dns-results');
+            loading.classList.remove('hidden');
+            container.classList.add('hidden');
+            container.innerHTML = '';
+
+            const recordTypes = ['A', 'AAAA', 'MX', 'NS', 'TXT', 'CNAME'];
+
+            try {
+                const promises = recordTypes.map(type => 
+                    fetchWithTimeout(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${type}`)
+                        .then(res => ({ type, data: res.data }))
+                        .catch(err => ({ type, error: err.message }))
+                );
+
+                const results = await Promise.all(promises);
+                loading.classList.add('hidden');
+                container.classList.remove('hidden');
+
+                results.forEach(res => {
+                    const card = document.createElement('div');
+                    card.className = 'glass-card dns-card';
+                    let recordsHtml = '';
+
+                    if (res.data && res.data.Answer) {
+                        recordsHtml = res.data.Answer.map(ans => 
+                            `<tr><td>${ans.data}</td><td>TTL: ${ans.TTL}</td></tr>`
+                        ).join('');
+                    } else {
+                        recordsHtml = `<tr><td colspan="2" style="color:var(--text-muted)">No ${res.type} records found.</td></tr>`;
+                    }
+
+                    card.innerHTML = `
+                        <h4>${res.type} RECORDS</h4>
+                        <table class="data-table"><tbody>${recordsHtml}</tbody></table>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (err) {
+                loading.classList.add('hidden');
+                alert(`DNS query failed: ${err.message}`);
+            }
+        }
+
+        // 4. RDAP LOOKUP
+        async function performRDAPLookup(target) {
+            const loading = document.getElementById('rdap-loading');
+            const resultBox = document.getElementById('rdap-results');
+            const tableBody = document.getElementById('rdap-table-body');
+            loading.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            try {
+                const { data } = await fetchWithTimeout(`https://rdap.org/ip/${target}`);
+                loading.classList.add('hidden');
+                resultBox.classList.remove('hidden');
+
+                tableBody.innerHTML = `
+                    <tr><td>Handle / Registry ID</td><td>${data.handle || '--'}</td></tr>
+                    <tr><td>Network Name</td><td>${data.name || '--'}</td></tr>
+                    <tr><td>Start Address</td><td>${data.startAddress || '--'}</td></tr>
+                    <tr><td>End Address</td><td>${data.endAddress || '--'}</td></tr>
+                    <tr><td>IP Version</td><td>${data.ipVersion || '--'}</td></tr>
+                    <tr><td>Country</td><td>${data.country || '--'}</td></tr>
+                    <tr><td>Type</td><td>${data.type || '--'}</td></tr>
+                `;
+            } catch (err) {
+                loading.classList.add('hidden');
+                alert(`RDAP Lookup failed: ${err.message}`);
+            }
+        }
+
+        // 5. IP COMPARISON
+        async function performComparison(ip1, ip2) {
+            const loading = document.getElementById('compare-loading');
+            const resultBox = document.getElementById('compare-results');
+            loading.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            try {
+                const [res1, res2] = await Promise.all([
+                    fetchWithTimeout(API_ENDPOINTS[state.activeApi](ip1)),
+                    fetchWithTimeout(API_ENDPOINTS[state.activeApi](ip2))
+                ]);
+
+                const data1 = normalizeData(res1.data, state.activeApi);
+                const data2 = normalizeData(res2.data, state.activeApi);
+
+                document.getElementById('comp-head-1').innerText = ip1;
+                document.getElementById('comp-head-2').innerText = ip2;
+
+                const fields = [
+                    ['IP Address', 'ip'],
+                    ['Country', 'country'],
+                    ['City', 'city'],
+                    ['ISP', 'isp'],
+                    ['ASN', 'asn'],
+                    ['Organization', 'org'],
+                    ['Timezone', 'timezone']
+                ];
+
+                const tbody = document.getElementById('compare-table-body');
+                tbody.innerHTML = fields.map(([label, key]) => `
+                    <tr>
+                        <td>${label}</td>
+                        <td>${data1[key]}</td>
+                        <td>${data2[key]}</td>
+                    </tr>
+                `).join('');
+
+                loading.classList.add('hidden');
+                resultBox.classList.remove('hidden');
+            } catch (err) {
+                loading.classList.add('hidden');
+                alert(`Comparison failed: ${err.message}`);
+            }
+        }
+
+        // 6. CLIENT TELEMETRY
+        function renderClientNetworkInfo() {
+            document.getElementById('sys-online').innerText = navigator.onLine ? 'ONLINE' : 'OFFLINE';
+            document.getElementById('sys-ua').innerText = navigator.userAgent;
+            document.getElementById('sys-os').innerText = navigator.platform || 'Unknown';
+            document.getElementById('sys-res').innerText = `${window.screen.width} x ${window.screen.height}`;
+            document.getElementById('sys-vp').innerText = `${window.innerWidth} x ${window.innerHeight}`;
+
+            const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (conn) {
+                document.getElementById('sys-conn').innerText = conn.effectiveType ? conn.effectiveType.toUpperCase() : '--';
+                document.getElementById('sys-downlink').innerText = conn.downlink ? `${conn.downlink} Mbps` : '--';
+                document.getElementById('sys-rtt').innerText = conn.rtt ? `${conn.rtt} ms` : '--';
+            } else {
+                document.getElementById('sys-conn').innerText = 'API Not Supported';
+                document.getElementById('sys-downlink').innerText = 'N/A';
+                document.getElementById('sys-rtt').innerText = 'N/A';
+            }
+        }
+
+        // 7. HISTORY MANAGEMENT
+        function saveHistoryItem(target, data) {
+            const item = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                target,
+                ip: data.ip,
+                location: `${data.city}, ${data.country}`,
+                isp: data.isp
+            };
+
+            state.history.unshift(item);
+            if (state.history.length > 30) state.history.pop();
+            localStorage.setItem('ip_scanner_history', JSON.stringify(state.history));
+            renderHistoryTable();
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            if (state.history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No search history found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = state.history.map(item => `
+                <tr>
+                    <td>${item.timestamp}</td>
+                    <td>${item.target}</td>
+                    <td>${item.ip}</td>
+                    <td>${item.location}</td>
+                    <td>${item.isp}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteHistoryItem(${item.id})">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteHistoryItem(id) {
+            state.history = state.history.filter(item => item.id !== id);
+            localStorage.setItem('ip_scanner_history', JSON.stringify(state.history));
+            renderHistoryTable();
+        }
+
+        // 8. REPORT EXPORT
+        function exportCurrentReport(format) {
+            if (!state.currentLookupData) {
+                alert('No lookup data available to export.');
+                return;
+            }
+
+            const data = state.currentLookupData;
+            let content = '', mimeType = '', filename = `IP_Report_${data.ip}.${format}`;
+
+            if (format === 'json') {
+                content = JSON.stringify(data, null, 2);
+                mimeType = 'application/json';
+            } else if (format === 'csv') {
+                const keys = Object.keys(data);
+                const values = Object.values(data);
+                content = `${keys.join(',')}\n${values.map(v => `"${v}"`).join(',')}`;
+                mimeType = 'text/csv';
+            } else if (format === 'txt') {
+                content = `IP SCANNER PRO - ANALYTICS REPORT\nGenerated: ${new Date().toISOString()}\n\n` +
+                    Object.entries(data).map(([k, v]) => `${k.toUpperCase()}: ${v}`).join('\n');
+                mimeType = 'text/plain';
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Utility Status Bar Updater
+        function updateStatus(text) {
+            document.getElementById('header-action-text').innerText = text;
+            document.getElementById('api-status-text').innerText = text;
+        }
+    </script>
+</body>
+</html>
